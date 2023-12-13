@@ -5,8 +5,7 @@
       <div v-for="(message, index) in messages" :key="index" class="form-group">
         {{ message }}
       </div>
-    </div>
-    
+    </div>    
     <div class="form-group">
         <input v-model="userInput" class="form-control long-input" placeholder="How can I help you today?">
     </div>
@@ -40,18 +39,18 @@
 </script>  
 
 <style scoped>
-.button-container {
-  display: flex;
-  justify-content: space-between;
-}
-.page-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 90vh; 
-}
-.messages {
-  flex: 1;
-  overflow-y: auto; 
-}
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  .page-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 90vh; /* This will make the container take up the full viewport height */
+  }
+  .messages {
+    flex: 1;
+    overflow-y: auto; /* This will add a scrollbar if the messages overflow the div */
+  }
 </style>

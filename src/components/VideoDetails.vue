@@ -124,14 +124,17 @@
 <style>
 
   .property {    
-      padding-top: 10px;   
-      
+      padding-top: 10px;
   }
   .property-name {
       font-weight: bold;
   }
   .property-value {
+    max-width: 100%;
     text-overflow: ellipsis;
+    overflow: hidden;
+    display: flex;
+    
   }
   .loading {
     animation: blink 1s linear infinite;
@@ -156,11 +159,11 @@
     overflow-y: auto;
   }
   .timeline-item {
-  display: grid;
-  grid-template-columns: 100px 100px auto;
-  justify-items: start;
-  gap: 5px;
-}
+    display: grid;
+    grid-template-columns: 100px 100px auto;
+    justify-items: start;
+    gap: 5px;
+  }
   .timeline-item span {
     display: block;
     text-align: left;

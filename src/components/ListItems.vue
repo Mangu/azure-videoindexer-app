@@ -32,7 +32,7 @@
           accessToken: '',
           selected: null,
           currentPage: 1,
-          itemsPerPage: 2,
+          itemsPerPage: 20,
           searchQuery: this.$route.query.q || ''
         };
     },

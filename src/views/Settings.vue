@@ -57,7 +57,7 @@
         flex-direction: row;
     }
     }
- 
+
     .tall-textarea {
         height: 200px;  
     }
@@ -74,7 +74,7 @@
     .tall-textarea {
         flex-basis: 100%;
     }
-  
+
     .checkbox-left {
         display: block;
         width: auto;
