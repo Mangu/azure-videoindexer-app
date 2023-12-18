@@ -3,6 +3,22 @@
         <h3>Settings</h3>
         <form @submit.prevent="saveSettings" class="form-container">
             <div class="form-group">
+                <label>Logs Prompt</label>
+                <textarea v-model="oaiLogsPrompt" class="form-control long-input tall-textarea"></textarea>
+            </div>  
+            <div class="form-group">
+                <label>Summary Prompt</label>
+                <textarea v-model="oaiSummaryPrompt" class="form-control long-input tall-textarea"></textarea>
+            </div> 
+            <div class="form-group">
+                <label>Model Temperature ({{ modelTemp }})</label>
+                <input type="range" v-model.number="modelTemp" min="0" max="2" step=".1" class="form-control long-input">
+            </div>
+            <div class="form-group">
+                <label>Top P ({{ modelTopP }})</label>
+                <input type="range" v-model.number="modelTopP" min="0" max="1" step=".1" class="form-control long-input">
+            </div> 
+            <div class="form-group">
                 <label>AD Client Id</label>
                 <input v-model="adClientId" class="form-control long-input" placeholder="Client ID">
             </div>
@@ -30,13 +46,9 @@
                 <input v-model="oaiKey" class="form-control long-input" placeholder="OpenAI Key">
             </div>
             <div class="form-group">
-                <label>Model Temperature ({{ modelTemp }})</label>
-                <input type="range" v-model.number="modelTemp" min="0" max="2" step=".1" class="form-control long-input">
-            </div>
-            <div class="form-group">
-                <label>Summary Prompt</label>
-                <textarea v-model="oaiPrompt" class="form-control long-input tall-textarea"></textarea>
-            </div>  
+                <label>Max Shots (Default: 10)</label>
+                <input v-model="maxShots" type="number" min="0" class="form-control long-input" placeholder="Max Shots">            
+            </div>            
             <div class="form-group">
                 <label>Use settings values</label>
                 <input type="checkbox" v-model="useSettings" class="form-control checkbox-left" >
@@ -96,8 +108,11 @@
                 viSubscriptionKey: '',
                 oaiEndpoint: '',
                 oaiKey: '',
-                oaiPrompt: '',  
+                oaiLogsPrompt: '',
+                oaiSummaryPrompt: '',   
                 modelTemp: 0.5,
+                modelTopP: 0.5,
+                maxShots: '',
                 checkboxValue: false,     
             };
         },
@@ -123,8 +138,14 @@
             oaiKey(newVal) {
                 this.oaiKey = DOMPurify.sanitize(newVal);
             },
-            oaiPrompt(newVal) {
-                this.oaiPrompt = DOMPurify.sanitize(newVal);
+            oaiLogsPrompt(newVal) {
+                this.oaiLogsPrompt = DOMPurify.sanitize(newVal);
+            },
+            oaiSummaryPrompt(newVal) {
+                this.oaiSummaryPrompt = DOMPurify.sanitize(newVal);
+            },
+            maxShots(newVal) {
+                this.maxShots = DOMPurify.sanitize(newVal);
             },
         },  
         created() {
@@ -135,9 +156,12 @@
             this.viSubscriptionKey = localStorage.getItem('viSubscriptionKey') || '';
             this.oaiEndpoint = localStorage.getItem('oaiEndpoint') || '';
             this.oaiKey = localStorage.getItem('oaiKey') || '';
-            this.oaiPrompt = localStorage.getItem('oaiPrompt') || '';
+            this.oaiLogsPrompt = localStorage.getItem('oaiLogsPrompt') || '';
+            this.oaiSummaryPrompt = localStorage.getItem('oaiSummaryPrompt') || '';
             this.modelTemp = localStorage.getItem('modelTemp') || 0.5;
             this.useSettings = localStorage.getItem('useSettings') || false;
+            this.modelTopP = localStorage.getItem('modelTopP') || 0.5;
+            this.maxShots = localStorage.getItem('maxShots') || '';
         },
         methods: {
             saveSettings() {
@@ -148,8 +172,11 @@
                 localStorage.setItem('viSubscriptionKey', this.viSubscriptionKey);
                 localStorage.setItem('oaiEndpoint', this.oaiEndpoint);
                 localStorage.setItem('oaiKey', this.oaiKey);  
-                localStorage.setItem('oaiPrompt', this.oaiPrompt);  
+                localStorage.setItem('oaiLogsPrompt', this.oaiLogsPrompt); 
+                localStorage.setItem('oaiSummaryPrompt', this.oaiSummaryPrompt);
+                localStorage.setItem('modelTopP', this.modelTopP); 
                 localStorage.setItem('modelTemp', this.modelTemp); 
+                localStorage.setItem('maxShots', this.maxShots);
                 localStorage.setItem('useSettings', this.useSettings);                 
             },
         },

@@ -1,39 +1,65 @@
-<!-- LoginButton.vue -->
+
 <template>
-    <b-button @click="login" >Login</b-button>
+    <b-button @click="login" >{{ buttonText }}</b-button>
 </template>
   
 <script>
-import * as Msal from 'msal';
+import { UserAgentApplication } from 'msal';
+import store from '../store' 
 
 export default {
-name: 'Login',
-data() {
+  name: 'Login',
+  data() {
     return {
-    msal: new Msal.UserAgentApplication({
-        auth: {
-        clientId: process.env.VUE_APP_CLIENT_ID,
-        redirectUri: window.location.origin
-        },
-        cache: {
-        cacheLocation: 'localStorage',
-        storeAuthStateInCookie: true
-        }
-    })
+        msalInstance: new UserAgentApplication({
+            auth: {
+                clientId: process.env.VUE_APP_CLIENT_ID, 
+                authority: 'https://login.microsoftonline.com/consumers',
+                redirectUri: window.location.origin,
+            },
+            cache: {
+                cacheLocation: "localStorage",
+                storeAuthStateInCookie: true
+            },
+            system: {
+                navigateFrameWait: 0
+            },
+            framework: {
+                unprotectedResources: ["https://www.microsoft.com/en-us/"],
+                protectedResourceMap: new Map([["https://graph.microsoft.com/v1.0/me", ["user.read"]]])
+            }
+        }),
+        loginInProgress: false,
     };
-},
-methods: {
-    async login() {
-    try {
-        await this.msal.loginPopup({
-        scopes: ['user.read']
-        });
-        const user = this.msal.getAccount();
-        console.log(user);
-    } catch (error) {
-        console.error(error);
+    
+  },
+  computed: {
+    buttonText() {
+      return store.getters.isLoggedIn ? 'Logout' : 'Login';
     }
+  },
+  methods: {
+    login() {
+        if (this.loginInProgress) {
+               
+              this.msalInstance.logout();
+        }
+        this.loginInProgress = true;
+        if (!store.getters.isLoggedIn) {
+            this.msalInstance.loginPopup().then(() => {        
+            store.commit('SET_LOGIN_STATE', true)
+        
+        }).catch((error) => {
+            console.error(error)
+        }).finally(() => {
+            this.loginInProgress = false;
+        })
+        } else {      
+            this.msalInstance.logout()
+            store.commit('SET_LOGIN_STATE', false)
+            this.loginInProgress = false;
+        }
     }
+  }
 }
-};
 </script>

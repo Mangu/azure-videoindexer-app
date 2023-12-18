@@ -12,8 +12,11 @@
         </b-navbar-nav>         
          <b-navbar-nav class="ml-auto"> 
           <b-form-input class="mr-2" v-model="searchQuery" placeholder="Search"></b-form-input>
-          <b-button variant="outline-primary" @click="search">Search</b-button>         
-          <LoginButton variant="primary" class="btn ml-2"/>
+          <b-button variant="primary" @click="search">Search</b-button>   
+          
+          
+        
+
         </b-navbar-nav>       
       </b-collapse>
     </b-navbar> 
@@ -23,11 +26,10 @@
   </div>
 </template>
 <script>
-import LoginButton from './components/LoginButton.vue';
 export default {
   name: 'App',
   components: {
-    LoginButton
+    
   },
   data() {
     return {
@@ -43,12 +45,9 @@ export default {
   created() {
     this.$router.push('/home');
   }
-
 };
 </script>
-
-<style >
-  
+<style >  
   .navbar-3d {
     z-index: 1;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);

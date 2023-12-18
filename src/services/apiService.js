@@ -93,30 +93,89 @@ export default {
         console.error('Failed to fetch video details:', error);
     }
   },
-
-  async getOpenAIResponse(transcript) {
-      const userPrompt = transcript.map(line => line.text).join(' ');
-      const systemPrompt = 'Follow these instructions: - Check with attention which kind of sport this is and the location - write a brief description of the transcript - Add anything else you find interesting based on the content only';
-
-      const openAiResponse = await axios.post(process.env.VUE_APP_AOAI_ENDPOINT, {
-        messages: [
-          {
-              role: 'system',
-              content: systemPrompt
-          },
-          {
-              role: 'user',
-              content: userPrompt
+  async *generateLogs(shots, videoId, accessToken, maxIterations) {
+    let count = 0;
+    for (let shot of shots) {
+      for (let keyFrame of shot.keyFrames) {
+        if (keyFrame && keyFrame.instances && keyFrame.instances.length > 0) {
+          let instance = keyFrame.instances[0];
+          let text = instance.thumbnailId ? await this.generateDescription(videoId, instance.thumbnailId, accessToken) : '';
+          yield {
+            start: instance.start,
+            end: instance.end,
+            text: text
+          };
+          count++;
+          if (count >= maxIterations) {
+            return;
           }
-        ],
+        }
+      }
+    }
+  },
+  
+  async generateDescription( videoId,thumbnailId, accessToken) {
+
+    const image = `${process.env.VUE_APP_API_ENDPOINT}/${process.env.VUE_APP_LOCATION}/Accounts/${process.env.VUE_APP_ACCOUNT_ID}/Videos/${videoId}/Thumbnails/${thumbnailId}?accessToken=${accessToken}`;
+    const systemPrompt = localStorage.getItem('oaiLogsPrompt') || 'You are a video analyzer. This image is a scene for a sport event. Provide the following: What is the sport? Is the event location indoors or outdoors? Title of the scene, A short description of the scene as if you were a sports reporter. And always and only return back JSON with the following field: tittle, description, sport, location'; 
+  
+    const prompt = {
+      "role": "user",
+      "content": [
+        {"type": "text", "text": systemPrompt},
+        {
+          "type": "image_url",
+          "image_url": {"url": image,},
+        },
+      ],
+    }; 
+    let response; 
+    try {
+       response = await axios.post(process.env.VUE_APP_AOAI_ENDPOINT, {
+        model: "gpt-4-vision-preview",
+        messages: [prompt],
+        max_tokens: 300,
       }, 
       {
-          headers: {
-              'api-key': `${process.env.VUE_APP_AZURE_OPEN_AI_KEY}`,
-              'Content-Type': 'application/json'
-          }
+        headers: {
+          'api-key': `${process.env.VUE_APP_AZURE_OPEN_AI_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 500000 
       });
-      const openAiData = openAiResponse.data;
-      return openAiData.choices[0].message.content;
+    } catch (error) {      
+      console.error(error);
+    }
+    //console.log(response.data.choices[0]);
+    return response.data.choices[0].message.content;
+  },
+
+  async generateSummary(transcript) {
+    const userPrompt = transcript.map(line => line.text).join(' ');
+    const modelTemp = parseFloat(localStorage.getItem('oaiTemp')) || 0.7;
+    const systemPrompt = localStorage.getItem('oaiSummaryPrompt') || 'Follow these instructions: - Check with attention which kind of sport this is and the location - write a brief description of the transcript - Add anything else you find interesting based on the content only'; 
+  
+    const openAiResponse = await axios.post(process.env.VUE_APP_AOAI_ENDPOINT, {
+      messages: [
+        {
+            role: 'system',
+            content: systemPrompt
+        },
+        {
+            role: 'user',
+            content: userPrompt
+        }
+      ],
+      temperature: modelTemp,
+      max_tokens: 3000,
+    }, 
+    {
+        headers: {
+            'api-key': `${process.env.VUE_APP_AZURE_OPEN_AI_KEY}`,
+            'Content-Type': 'application/json'
+        }
+    });
+    const openAiData = openAiResponse.data;
+    return openAiData.choices[0].message.content;
   }
 };
