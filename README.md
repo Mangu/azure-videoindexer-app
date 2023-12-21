@@ -1,6 +1,6 @@
 # Vue.js Azure Video Indexer Sample Application
 
-This is a Vue.js application that provides a user interface for generating additonal insights on Azure Video Indexer indexed videos. The UI allows you to modify the prompts that generate scene analyzist and summary.
+This is a Vue.js application that provides a user interface for generating additional insights on Azure Video Indexer indexed videos. The UI allows you to modify the prompts that generate scene analysis and summary.
 
 ## Installation 
 
